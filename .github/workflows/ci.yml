@@ -7,8 +7,12 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v6
@@ -23,6 +27,10 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('package.json') }}
+
+      - name: Install Firefox (macOS)
+        if: runner.os == 'macOS'
+        run: brew install --cask firefox
 
       - name: Install dependencies
         run: npm install
